@@ -13,8 +13,8 @@ import 'antd/dist/reset.css';
 import "./index.css";
 import SerialPanel from "./componets/serialPanel";
 import SensorPanel from "./componets/sensorPanel";
-import infoPanel from "./componets/infoPanel";
 import InfoPanel from "./componets/infoPanel";
+import ChartsSet from "./componets/chartsSet";
 
 const { Header, Content, Sider } = Layout;
 
@@ -62,6 +62,7 @@ const App: React.FC = () => {
                     <SerialPanel/>
                     {/*传感器配置卡片*/}
                     <SensorPanel/>
+                    {/*软件说明卡片*/}
                     <InfoPanel/>
                 </Sider>
                 <Layout style={{ padding: '0 24px 24px' }}>
@@ -71,10 +72,12 @@ const App: React.FC = () => {
                             padding: 24,
                             margin: 0,
                             minHeight: 280,
+                            maxHeight: 640,
                             background: colorBgContainer,
                         }}
                     >
-                        Content
+                        {/*图标组, based on echarts*/}
+                        <ChartsSet/>
                     </Content>
                 </Layout>
             </Layout>
