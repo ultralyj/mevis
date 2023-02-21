@@ -39,7 +39,7 @@ function SensorPanel(props) {
                         size={"small"}
                     />
                 </Col>
-                <Divider/>
+                <Divider style={{marginBottom: 0, marginTop: 0}}/>
                 <Col span={10}>推理模型：</Col>
                 <Col span={14}>
                     <Select

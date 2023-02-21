@@ -1,31 +1,18 @@
 import React, {useState} from "react";
-import { Breadcrumb, Layout, Menu, theme} from "antd";
+import { Layout, Menu, theme} from "antd";
 import {
     AppstoreOutlined,
-    LaptopOutlined,
     MailOutlined,
-    NotificationOutlined,
-    SettingOutlined,
-    UserOutlined
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import 'antd/dist/reset.css';
-import "./index.css";
+import "./layout.css";
 import SerialPanel from "./componets/serialPanel";
 import SensorPanel from "./componets/sensorPanel";
 import InfoPanel from "./componets/infoPanel";
 import ChartsSet from "./componets/chartsSet";
-
+import banner from "./res/mevis_banner.png"
 const { Header, Content, Sider } = Layout;
-
-const headerItems: MenuProps['items'] = ['1', '2', '3'].map((key) => ({
-    key,
-    label: `nav ${key}`,
-}));
-
-const handleChange = (value: string) => {
-    console.log(`selected ${value}`);
-};
 
 const items: MenuProps['items'] = [
     {
@@ -54,7 +41,13 @@ const App: React.FC = () => {
         <Layout>
             {/*顶部配置*/}
             <Header className="header">
-                <div className="logo" />
+                <div className="logo">
+                    <img id="banner" alt={"banner"} src={banner}/>
+                </div>
+                <div className="header-title">
+                    <h1>磁触觉感知框架</h1>
+                </div>
+                <div className="header-extra">设置</div>
             </Header>
             <Layout>
                 <Sider width={260} style={{ background: colorBgContainer }}>
@@ -72,7 +65,7 @@ const App: React.FC = () => {
                             padding: 24,
                             margin: 0,
                             minHeight: 280,
-                            maxHeight: 640,
+                            maxHeight: 660,
                             background: colorBgContainer,
                         }}
                     >
@@ -81,7 +74,9 @@ const App: React.FC = () => {
                     </Content>
                 </Layout>
             </Layout>
-
+            <footer style={{ textAlign: 'center' }}>
+                Mevis Magnet-Tactile Framework ©2023 Created by ultralyj
+            </footer>
         </Layout>
     );
 };

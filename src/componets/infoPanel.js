@@ -7,7 +7,7 @@ function InfoPanel(props) {
     return (
         <Card
             title={<div><CodeOutlined /> 关于 Mevis</div>}
-            style={{ margin:4 }}
+            style={{ margin:4 ,padding:0}}
         >
             <Descriptions
                 size={"small"}

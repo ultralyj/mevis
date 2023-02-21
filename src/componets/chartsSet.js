@@ -3,7 +3,7 @@ import React, {useState, Component} from "react";
 import { Line } from '@ant-design/charts';
 import ScatterTactile from "./charts/scatterTactile";
 import HeatmapNet from "./charts/heatmapNet";
-
+import BoardGraph from "./charts/boardGraph";
 function ChartsSet(props) {
     const data = [
         { year: '1991', value: 3 },
@@ -30,31 +30,31 @@ function ChartsSet(props) {
     return (
         <Row gutter={[8,8]}>
             <Col span={12}>
-                <Card bodyStyle={{height:"300px",paddingBottom:"24px"}}>
-                    <div id={"chart1"} style={{height:"260px"}}>
+                <Card bodyStyle={{height:"260px",paddingBottom:"24px"}}>
+                    <div id={"chart1"} style={{height:"220px"}}>
                         <Line {...config} />
                     </div>
                 </Card>
             </Col>
             <Col span={12}>
-                <Card bodyStyle={{height:"300px",paddingBottom:"24px"}}>
-                    <div id={"chart2"} style={{height:"260px"}}>
+                <Card bodyStyle={{height:"260px",paddingBottom:"24px"}}>
+                    <div id={"chart2"} style={{height:"220px"}}>
                         <ScatterTactile/>
                     </div>
                 </Card>
 
             </Col>
             <Col span={12}>
-                <Card bodyStyle={{height:"300px",paddingBottom:"24px"}}>
-                    <div id={"chart1"} style={{height:"260px"}}>
+                <Card bodyStyle={{height:"260px",paddingBottom:"24px"}}>
+                    <div id={"chart3"} style={{height:"220px"}}>
                         <HeatmapNet/>
                     </div>
                 </Card>
             </Col>
             <Col span={12}>
-                <Card bodyStyle={{height:"300px",paddingBottom:"24px"}} cover={}>
-                    <div id={"chart2"} style={{height:"260px"}}>
-                        jhfjsdhfjdhkjdhsjk
+                <Card bodyStyle={{height:"260px", paddingBottom:"24px",}} >
+                    <div id={"chart4"} style={{height:"220px"}}>
+                        <BoardGraph/>
                     </div>
                 </Card>
 
