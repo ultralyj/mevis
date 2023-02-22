@@ -7,10 +7,10 @@ import {
 import type { MenuProps } from 'antd';
 import 'antd/dist/reset.css';
 import "./layout.css";
-import SerialPanel from "./componets/serialPanel";
-import SensorPanel from "./componets/sensorPanel";
-import InfoPanel from "./componets/infoPanel";
-import ChartsSet from "./componets/chartsSet";
+import SerialPanel from "./pages/serialPanel";
+import SensorPanel from "./pages/sensorPanel";
+import InfoPanel from "./pages/infoPanel";
+import ChartsSet from "./pages/chartsSet";
 import banner from "./res/mevis_banner.png"
 const { Header, Content, Sider } = Layout;
 

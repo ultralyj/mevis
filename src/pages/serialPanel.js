@@ -6,7 +6,8 @@
 
 import {Button, Card, Col, Row, Select, Avatar, Divider} from "antd";
 import React, {useState} from "react";
-import {ApiOutlined, PoweroffOutlined} from "@ant-design/icons";
+import {ApiOutlined, PoweroffOutlined, SearchOutlined} from "@ant-design/icons";
+import sensorBoard from "../res/merci_sersorboardv1.0.png";
 const { Meta } = Card;
 
 
@@ -32,24 +33,34 @@ class SerialPanel extends React.Component{
             loading: false,
             port:0,
             baud:115200,
+            serialList:[{ value: '-1', label: '未搜索到端口', disabled: true }],
+            serialCom:'未搜索到端口',
+            opened:false,
+            openButton:  '打开串口',
         };
+
     }
     componentDidMount() {
-        navigator.serial.getPorts().then((ports) => {
-            console.log(ports)
-            console.log(ports.length)
-            if (this.port === null) {
-                console.log("@")
-                if (ports.length > 0) {
-                    console.log(ports.length)
+        /**
+         * @brief 更新端口列表
+         */
+        window.electronAPI.onListSerial((_event, ports) => {
+            if(ports.length>0){
+                let comList = ports.map((item,index) => {
+                    return Object.assign({},{'value':item.path,'label':item.friendlyName})
+                })
+                this.setState({serialList:comList});
+                if(this.state.serialCom == '未搜索到端口'){
+                    this.setState({serialCom:comList[0].value});
+                    this.setState({port:comList[0].value});
                 }
-                // 提示用户选择一个串口
-                // this.port = await navigator.serial.requestPort()
-                // this.open()
             }
-        });
+            else {
+                this.setState({serialList:[{ value: '-1', label: '未搜索到端口', disabled: true }]});
+                this.setState({serialCom:'未搜索到端口'});
+            }
 
-
+        })
     }
 
     componentWillUnmount() {
@@ -68,12 +79,12 @@ class SerialPanel extends React.Component{
                     <Col span={10}>端口：</Col>
                     <Col span={14}>
                         <Select
-                            defaultValue="-1"
+                            defaultValue={this.state.serialList[0].value}
+                            dropdownMatchSelectWidth={false}
                             style={{ width: '100%' }}
                             onChange={this.handlePortChange}
-                            options={[
-                                { value: '-1', label: '未搜索到端口', disabled: true },
-                            ]}
+                            options={this.state.serialList}
+                            value={this.state.serialCom}
                         />
                     </Col>
                     <Col span={10}>波特率：</Col>
@@ -93,7 +104,9 @@ class SerialPanel extends React.Component{
                         />
                     </Col>
                     <Divider style={{marginBottom: 0, marginTop: 0}}/>
-                    <Col span={10}/>
+                    <Col span={10}>
+                        <Button icon={<SearchOutlined />} onClick={() => window.electronAPI.requestList()}/>
+                    </Col>
                     <Col span={14}>
                         <Button
                             id={"serial-open-button"}
@@ -104,7 +117,7 @@ class SerialPanel extends React.Component{
                             onClick={() => this.enterLoading(1)}
 
                         >
-                            打开串口
+                            {this.state.openButton}
                         </Button>
                     </Col>
                 </Row>
@@ -113,38 +126,18 @@ class SerialPanel extends React.Component{
     };
 
     async enterLoading(index: number)  {
-        let keepReading = true;
-        let reader;
-        let writer;
-        this.setState({loading:true});
-        try {
-            const port = await navigator.serial.requestPort();
-            const portInfo = port.getInfo();
-            console.log(`vendorId: ${portInfo.usbVendorId} | productId: ${portInfo.usbProductId} `)
-            await port.open({
-                baudRate: this.state.baud,     // 波特率
-                dataBits: 8,        // 每帧的数据位数(7或8)
-                stopBits: 1,        // 停止位数(1或2)
-                parity: 'none',     // 校验模式，可以是none，偶数，奇数
-                flowControl: 'none' // 流控模式(none或hardware)。
-            });
-            keepReading = true;
-            reader = port.readable.getReader();
-            writer = port.writable.getWriter();
-            const writeInt = setInterval(async () => {
-                const commandframe = new Uint8Array([
-                    0x00,
-                    0xff /*...some bytes to be sent*/,
-                ]);
-                await writer.write(commandframe);
-            }, 300);
-        } catch (ex) {
-            if (ex.name === 'NotFoundError') {
-                console.log('Device NOT found')
-            } else {
-                console.log(ex)
+        if(this.state.opened === false){
+            // 关闭状态，开启串口
+            if(this.state.serialCom !== '未搜索到端口'){
+                let portInfo = {path:this.state.port,baud:this.state.baud};
+                // 进入打开串口的加载状态
+                this.setState({loading:true});
+                await window.electronAPI.openSerial(portInfo)
+                this.setState({loading:false});
+                this.setState({openButton:'关闭串口'})
             }
         }
+
     }
 
     handlePortChange = (value: string) => {

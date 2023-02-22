@@ -1,15 +1,14 @@
-const { app, BrowserWindow} = require('electron');
+const { app, BrowserWindow, ipcMain} = require('electron');
 const path = require("path");
+const { serial, listSerialPorts, handleSerialOpen, handleRequestList} = require('./src/components/serial')
 // 浏览器引用
-let window;
+require('./src/components/window')
 
-function serial(){
 
-}
 // 创建浏览器窗口函数
 let createWindow = () => {
-    console.log("Mevis")
     // 创建浏览器窗口
+    // eslint-disable-next-line no-global-assign
     window = new BrowserWindow({
         width: 1200,
         height: 760,
@@ -18,54 +17,32 @@ let createWindow = () => {
         autoHideMenuBar: true,
         // 禁用菜单缩放
         resizable: false,
+        // 禁止上下文隔离
+        contextIsolation: false,
+        webPreferences:{
+            preload:path.join(__dirname, 'src/preload.js')
+        }
     });
 
     // 添加串口相关功能
-    window.webContents.session.on('select-serial-port', (event, portList, webContents, callback) => {
-
-        //Add listeners to handle ports being added or removed before the callback for `select-serial-port`
-        //is called.
-        window.webContents.session.on('serial-port-added', (event, port) => {
-            console.log('serial-port-added FIRED WITH', port)
-            //Optionally update portList to add the new port
-        })
-
-        window.webContents.session.on('serial-port-removed', (event, port) => {
-            console.log('serial-port-removed FIRED WITH', port)
-            //Optionally update portList to remove the port
-        })
-
-        event.preventDefault()
-        if (portList && portList.length > 0) {
-            callback(portList[0].portId)
-        } else {
-            console.log("Could not find any matching devices")
-            callback('') //Could not find any matching devices
-        }
-    })
-
-    window.webContents.session.setPermissionCheckHandler((webContents, permission, requestingOrigin, details) => {
-        if (permission === 'serial' && details.securityOrigin === 'file:///') {
-            return true
-        }
-
-        return false
-    })
-
-    window.webContents.session.setDevicePermissionHandler((details) => {
-        if (details.deviceType === 'serial' && details.origin === 'file://') {
-            return true
-        }
-
-        return false
-    })
-
+    serial();
+    // 加载进程间通信
+    ipcMain.handle('serial:open', handleSerialOpen);
+    ipcMain.handle('serial:request', handleRequestList);
     // 加载应用中的index.html文件
-    window.loadFile('./build/index.html/');
+    // window.loadFile('./build/index.html/');
+    window.loadURL('http://localhost:3000');
 
+    // 打开调试工具
     window.webContents.openDevTools()
+
+    // 加载完成触发事件，载入串口列表等数据
+    window.webContents.on('did-finish-load', () => {
+        listSerialPorts().then();
+    })
     // 当window被关闭时，除掉window的引用
     window.on('closed', () => {
+        // eslint-disable-next-line no-global-assign
         window = null;
     });
 };

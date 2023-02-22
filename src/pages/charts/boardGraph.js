@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import ReactDOM from 'react-dom';
-import { Heatmap } from '@ant-design/plots';
 import sensorBoard from "../../res/merci_sersorboardv1.0.png"
 
 const BoardGraph = () => {
