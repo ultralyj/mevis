@@ -1,6 +1,6 @@
 const { app, BrowserWindow, ipcMain} = require('electron');
 const path = require("path");
-const { serial, listSerialPorts, handleSerialOpen, handleRequestList} = require('./src/components/serial')
+const { serial, listSerialPorts, handleSerialOpen, handleRequestList, handleSerialClose} = require('./src/components/serial')
 // 浏览器引用
 require('./src/components/window')
 
@@ -10,7 +10,7 @@ let createWindow = () => {
     // 创建浏览器窗口
     // eslint-disable-next-line no-global-assign
     window = new BrowserWindow({
-        width: 1200,
+        width: 1241,
         height: 760,
         icon: path.join(__dirname, './src/res/mevis_icon.ico'),
         // 隐藏菜单栏
@@ -28,13 +28,14 @@ let createWindow = () => {
     serial();
     // 加载进程间通信
     ipcMain.handle('serial:open', handleSerialOpen);
+    ipcMain.handle('serial:close', handleSerialClose);
     ipcMain.handle('serial:request', handleRequestList);
     // 加载应用中的index.html文件
     // window.loadFile('./build/index.html/');
     window.loadURL('http://localhost:3000');
 
     // 打开调试工具
-    window.webContents.openDevTools()
+    window.webContents.openDevTools();
 
     // 加载完成触发事件，载入串口列表等数据
     window.webContents.on('did-finish-load', () => {

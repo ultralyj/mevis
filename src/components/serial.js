@@ -2,6 +2,7 @@ const {SerialPort} = require("serialport");
 const { DelimiterParser } = require('@serialport/parser-delimiter')
 require('./window')
 
+let port;
 /**
  * 更新串口列表，并发送到前端
  */
@@ -60,7 +61,7 @@ function serial(){
  */
 async function handleSerialOpen(event, portInfo) {
     console.log("serial opening...");
-    const port = new SerialPort({
+    port = new SerialPort({
         path:portInfo.path,
         baudRate: portInfo.baud,    // 波特率
         dataBits: 8,                // 数据位
@@ -79,11 +80,25 @@ async function handleSerialOpen(event, portInfo) {
     })
     const parser = port.pipe(new DelimiterParser({ delimiter: '\n' })); // 以 \n 分隔处理数据
     parser.on('data', chunk => {
-        console.log(chunk.toString()); // 打印收到的数据
+        const dataSplit = chunk.toString().split(',');
+        if(dataSplit.length==12){
+            window.webContents.send('serial:data',dataSplit);
+        }
     });
     return false;
 }
 
+async function handleSerialClose() {
+    console.log("closing...")
+    port.close(function (error) {
+        if(error){
+            console.log("close serial failed, error:" + error);
+        }
+        else{
+            console.log("close serial successfully")
+        }
+    });
+}
 
 /**
  * 更新请求串口列表的回调函数（异步）
@@ -98,6 +113,7 @@ module.exports = {
     listSerialPorts,
     serial,
     handleSerialOpen,
+    handleSerialClose,
     handleRequestList,
 }
 

@@ -6,8 +6,11 @@
 
 import {Button, Card, Col, Row, Select, Avatar, Divider} from "antd";
 import React, {useState} from "react";
-import {ApiOutlined, PoweroffOutlined, SearchOutlined} from "@ant-design/icons";
+import {ApiOutlined, PoweroffOutlined, SearchOutlined, HeatMapOutlined} from "@ant-design/icons";
 import sensorBoard from "../res/merci_sersorboardv1.0.png";
+
+import {updatePlotTactile} from "./charts/plotTactile.js"
+import {updateBoardGraph} from "./charts/boardGraph";
 const { Meta } = Card;
 
 
@@ -42,7 +45,7 @@ class SerialPanel extends React.Component{
     }
     componentDidMount() {
         /**
-         * @brief 更新端口列表
+         * 更新端口列表
          */
         window.electronAPI.onListSerial((_event, ports) => {
             if(ports.length>0){
@@ -59,11 +62,22 @@ class SerialPanel extends React.Component{
                 this.setState({serialList:[{ value: '-1', label: '未搜索到端口', disabled: true }]});
                 this.setState({serialCom:'未搜索到端口'});
             }
+        })
+        /**
+         * 数据帧传输到前端(核心)
+         */
+        window.electronAPI.dataReadOut((_event, frame) => {
+            updatePlotTactile(frame);
+            updateBoardGraph(frame);
 
         })
     }
 
     componentWillUnmount() {
+        // 退出之前关闭串口
+        if(this.state.opened === true){
+            window.electronAPI.closeSerial();
+        }
     }
 
     render(){
@@ -72,7 +86,7 @@ class SerialPanel extends React.Component{
                 title= {<div><ApiOutlined /> 串口配置</div>}
                 extra = {<a href="#">高级</a>}
                 style = {{ margin:4 }}
-                headStyle = {{backgroundColor:'#f0f0fe', verticalAlign:"middle"}}
+                headStyle = {{verticalAlign:"middle"}}
             >
 
                 <Row gutter={[8, 8]}>
@@ -104,8 +118,11 @@ class SerialPanel extends React.Component{
                         />
                     </Col>
                     <Divider style={{marginBottom: 0, marginTop: 0}}/>
-                    <Col span={10}>
+                    <Col span={5}>
                         <Button icon={<SearchOutlined />} onClick={() => window.electronAPI.requestList()}/>
+                    </Col>
+                    <Col span={5}>
+                        <Button icon={<HeatMapOutlined />} onClick={() => this.emitTestSignal()}/>
                     </Col>
                     <Col span={14}>
                         <Button
@@ -125,21 +142,29 @@ class SerialPanel extends React.Component{
         );
     };
 
+    emitTestSignal() {
+        console.log("emit test signal");
+    }
     async enterLoading(index: number)  {
         if(this.state.opened === false){
+            this.setState({opened:true});
             // 关闭状态，开启串口
             if(this.state.serialCom !== '未搜索到端口'){
                 let portInfo = {path:this.state.port,baud:this.state.baud};
                 // 进入打开串口的加载状态
                 this.setState({loading:true});
-                await window.electronAPI.openSerial(portInfo)
+                await window.electronAPI.openSerial(portInfo);
                 this.setState({loading:false});
-                this.setState({openButton:'关闭串口'})
+                this.setState({openButton:'关闭串口'});
             }
         }
-
+        else{
+            // 关闭状态，开启串口
+            await window.electronAPI.closeSerial();
+            this.setState({openButton:'打开串口'});
+            this.setState({opened:false});
+        }
     }
-
     handlePortChange = (value: string) => {
         console.log(`port ${value}`);
         this.setState({port:parseInt(value)});
