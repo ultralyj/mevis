@@ -3,6 +3,7 @@ const path = require("path");
 const { serial, listSerialPorts, handleSerialOpen, handleRequestList, handleSerialClose} = require('./src/components/serial')
 // 浏览器引用
 require('./src/components/window')
+const url = require("url");
 
 
 // 创建浏览器窗口函数
@@ -20,7 +21,8 @@ let createWindow = () => {
         // 禁止上下文隔离
         contextIsolation: false,
         webPreferences:{
-            preload:path.join(__dirname, 'src/preload.js')
+            preload:path.join(__dirname, 'src/preload.js'),
+            webSecurity: false,
         }
     });
 
@@ -31,8 +33,8 @@ let createWindow = () => {
     ipcMain.handle('serial:close', handleSerialClose);
     ipcMain.handle('serial:request', handleRequestList);
     // 加载应用中的index.html文件
-    // window.loadFile('./build/index.html/');
-    window.loadURL('http://localhost:3000');
+    window.loadURL(path.join(__dirname, './static/index.html'));
+    //window.loadURL('http://localhost:3000');
 
     // 打开调试工具
     window.webContents.openDevTools();

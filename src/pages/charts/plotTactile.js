@@ -9,7 +9,7 @@ let chartData = {
         [],[],[],
         [],[],[],]
 }
-let myChart;
+let plotChart;
 let chartOption = {
     animation:false,
     tooltip: {
@@ -200,14 +200,13 @@ class PlotTactile extends React.Component {
         super(props)
     }
     componentDidMount() {
-        //初始化图表
-        this.initChart();
-    }
-    componentDidMount(nextProps) {
-        //更新图表
-        this.initChart(nextProps);
+        // 延迟挂载
+        setTimeout(() => {
+            this.initChart();
+        }, 100);
+
         setInterval(function () {
-            myChart.setOption({
+            plotChart.setOption({
                 xAxis: {
                     data: chartData.xAxis
                 },
@@ -266,19 +265,18 @@ class PlotTactile extends React.Component {
     }
     /*生成图表，做了判断，如果不去判断dom有没有生成，
       每次更新图表都要生成一个dom节点*/
-    initChart(props) {
-
-        myChart = echarts.init(document.getElementById('chart11'));
+    initChart() {
+        plotChart = echarts.init(document.getElementById('chart11'));
         // 绘制图表，option设置图表格式及源数据
-        myChart.setOption(chartOption);
+        plotChart.setOption(chartOption);
+        plotChart.resize();
         window.addEventListener('resize', function() {
-            myChart.resize();
+            plotChart.resize();
         });
     }
 
     render() {
         return (
-            //width和height可由属性值传入
             <div id="chart11" style={{width:'100%',height:'100%'}}></div>
         );
     }
